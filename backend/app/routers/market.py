@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from app.services.market_data import fetch_quote, fetch_sector_and_index
 from app.services.snapshot import get_last_snapshot, save_snapshot
+from app.services.change_detection import detect_changes
+from app.services.meaningfulness import classify_attention
 
 router = APIRouter(prefix="/market", tags=["market"])
 
@@ -25,3 +27,12 @@ def get_snapshot(user_id: str, symbol: str):
         return {"status": "no snapshot yet"}
     snap["_id"] = str(snap["_id"])
     return snap
+
+@router.get("/attention/{user_id}/{symbol}")
+def get_attention(user_id: str, symbol: str):
+    quote = fetch_quote(symbol)
+    last_snapshot = get_last_snapshot(user_id, symbol)
+    changes = detect_changes(last_snapshot, quote)
+    context = fetch_sector_and_index(symbol)
+    result = classify_attention(changes, context)
+    return {"symbol": symbol.upper(), "quote": quote, "changes": changes, **result}
