@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from app.database import db
+from app.routers import watchlist
 
 app = FastAPI(title="Groww Signal API")
+
+app.include_router(watchlist.router)
 
 @app.get("/health")
 def health_check():
