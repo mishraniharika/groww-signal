@@ -14,13 +14,8 @@ export async function getWatchlists(userId) {
 export async function createWatchlist(userId, name = "My Watchlist") {
   const res = await fetch(`${BASE_URL}/watchlist/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: userId,
-      name,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: userId, name }),
   });
   if (!res.ok) {
     throw new Error("Failed to create watchlist");
@@ -31,12 +26,8 @@ export async function createWatchlist(userId, name = "My Watchlist") {
 export async function addSymbol(watchlistId, symbol) {
   const res = await fetch(`${BASE_URL}/watchlist/${watchlistId}/add`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      symbol,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ symbol }),
   });
   if (!res.ok) {
     throw new Error("Failed to add symbol");
@@ -47,9 +38,7 @@ export async function addSymbol(watchlistId, symbol) {
 export async function removeSymbol(watchlistId, symbol) {
   const res = await fetch(
     `${BASE_URL}/watchlist/${watchlistId}/remove/${symbol}`,
-    {
-      method: "DELETE",
-    }
+    { method: "DELETE" }
   );
   if (!res.ok) {
     throw new Error("Failed to remove symbol");
@@ -61,9 +50,7 @@ export async function removeSymbol(watchlistId, symbol) {
 // MARKET / ATTENTION
 // ---------------------------------------------------------
 export async function getAttention(userId, symbol) {
-  const res = await fetch(
-    `${BASE_URL}/market/attention/${userId}/${symbol}`
-  );
+  const res = await fetch(`${BASE_URL}/market/attention/${userId}/${symbol}`);
   if (!res.ok) {
     throw new Error("Failed to fetch attention data");
   }
@@ -71,12 +58,9 @@ export async function getAttention(userId, symbol) {
 }
 
 export async function markSeen(userId, symbol) {
-  const res = await fetch(
-    `${BASE_URL}/market/snapshot/${userId}/${symbol}`,
-    {
-      method: "POST",
-    }
-  );
+  const res = await fetch(`${BASE_URL}/market/snapshot/${userId}/${symbol}`, {
+    method: "POST",
+  });
   if (!res.ok) {
     throw new Error("Failed to mark stock as seen");
   }
@@ -92,6 +76,29 @@ export async function getAssetDetail(symbol) {
   );
   if (!res.ok) {
     throw new Error("Failed to fetch asset detail");
+  }
+  return res.json();
+}
+
+// ---------------------------------------------------------
+// RESILIENCE / OUTAGE SIMULATION
+// ---------------------------------------------------------
+export async function setSimulateFailure(enabled) {
+  const res = await fetch(`${BASE_URL}/market/debug/simulate-failure`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to toggle simulate failure");
+  }
+  return res.json();
+}
+
+export async function getSimulateFailure() {
+  const res = await fetch(`${BASE_URL}/market/debug/simulate-failure`);
+  if (!res.ok) {
+    throw new Error("Failed to get simulate failure state");
   }
   return res.json();
 }

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from app.services.market_data import (
     fetch_quote,
     fetch_sector_and_index,
+    resolve_symbol,
     set_simulate_failure,
     get_simulate_failure,
 )
@@ -115,20 +116,41 @@ def read_simulate_failure():
 @router.get("/asset-detail/{symbol}")
 def get_asset_detail(symbol: str):
     """
-    Combines current quote, unusualness-vs-own-history, and recent news
-    into one payload for the Asset Detail page.
+    Combines current quote, unusualness-vs-own-history, real price history,
+    and recent news into one payload for the Asset Detail page.
     """
+
+    # Resolve company name / old ticker to the current Yahoo Finance ticker.
+    # Example:
+    # ZOMATO     -> ETERNAL.NS
+    # ZOMATO.NS  -> ETERNAL.NS
+    # ETERNAL    -> ETERNAL.NS
+    resolved_symbol = resolve_symbol(symbol)
+
     quote = fetch_quote(symbol)
+
+    # Default to an empty history so the endpoint remains safe if
+    # historical market data cannot be fetched.
+    history_points = []
 
     # --- Unusualness: compare today's move to the asset's own recent volatility ---
     unusualness = None
 
     try:
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(resolved_symbol)
         hist = ticker.history(period="1mo")
 
         if not hist.empty and len(hist) > 5:
             daily_pct_moves = hist["Close"].pct_change().dropna() * 100
+
+            # Build real historical closing-price points for the frontend chart.
+            history_points = [
+                {
+                    "date": str(idx.date()),
+                    "close": round(float(row), 2),
+                }
+                for idx, row in hist["Close"].items()
+            ]
 
             # Convert NumPy numeric values into normal Python floats
             # so FastAPI can serialize them safely as JSON.
@@ -168,7 +190,12 @@ def get_asset_detail(symbol: str):
     events = []
 
     try:
-        ticker = yf.Ticker(symbol)
+        # IMPORTANT:
+        # Use the resolved Yahoo Finance ticker here.
+        # This prevents ZOMATO from being queried as the old
+        # ZOMATO ticker instead of the current ETERNAL ticker.
+        ticker = yf.Ticker(resolved_symbol)
+
         news_items = ticker.news[:5] if ticker.news else []
 
         for item in news_items:
@@ -200,9 +227,12 @@ def get_asset_detail(symbol: str):
         events = []
 
     return {
-        "symbol": symbol.upper(),
+        # Return the resolved/current ticker so the frontend
+        # knows which actual Yahoo Finance symbol was used.
+        "symbol": resolved_symbol,
         "quote": quote,
         "unusualness": unusualness,
         "events": events,
+        "history": history_points,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
