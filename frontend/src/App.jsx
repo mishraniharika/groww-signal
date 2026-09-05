@@ -609,19 +609,37 @@ export default function App() {
   }, [loadWatchlist]);
 
   const refreshAttention = useCallback(async () => {
-    if (!watchlist?.items?.length) return;
+  if (!watchlist?.items?.length) return;
 
-    const results = {};
-    for (const item of watchlist.items) {
-      try {
-        results[item.symbol] = await getAttention(USER_ID, item.symbol);
-      } catch (err) {
-        console.error(`Failed to fetch attention for ${item.symbol}:`, err);
-      }
+  const results = {};
+
+  const requests = watchlist.items.map(async (item) => {
+    try {
+      const attention = await getAttention(USER_ID, item.symbol);
+      return {
+        symbol: item.symbol,
+        attention,
+      };
+    } catch (err) {
+      console.error(`Failed to fetch attention for ${item.symbol}:`, err);
+      return {
+        symbol: item.symbol,
+        attention: null,
+      };
     }
-    setAttentionData(results);
-    setLastUpdated(new Date());
-  }, [watchlist]);
+  });
+
+  const settledResults = await Promise.all(requests);
+
+  settledResults.forEach(({ symbol, attention }) => {
+    if (attention !== null) {
+      results[symbol] = attention;
+    }
+  });
+
+  setAttentionData(results);
+  setLastUpdated(new Date());
+}, [watchlist]);
 
   useEffect(() => {
     refreshAttention();
