@@ -4,11 +4,31 @@ from app.database import db
 
 cache_collection = db["market_data_cache"]
 
+# --- Demo-only failure simulation toggle ---
+# Flipped live via POST /market/debug/simulate-failure so you can show the
+# fallback path to judges without touching your network connection.
+_simulate_failure = False
+
+
+def set_simulate_failure(enabled: bool) -> bool:
+    global _simulate_failure
+    _simulate_failure = enabled
+    return _simulate_failure
+
+
+def get_simulate_failure() -> bool:
+    return _simulate_failure
+
+
 def fetch_quote(symbol: str) -> dict:
     """
     Fetch a normalized quote for a symbol (e.g. 'RELIANCE.NS').
-    Falls back to last cached value if the live fetch fails.
+    Falls back to last cached value if the live fetch fails, or if
+    SIMULATE_FAILURE has been toggled on for demo purposes.
     """
+    if _simulate_failure:
+        return _fallback_to_cache(symbol, error="Simulated failure (SIMULATE_FAILURE=True)")
+
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.fast_info  # lightweight, avoids full .info() overhead
@@ -33,6 +53,7 @@ def fetch_quote(symbol: str) -> dict:
             "fetched_at": datetime.now(timezone.utc),
             "source": "yfinance",
             "stale": False,
+            "data_quality": "fresh",
         }
 
         # cache it as the new "last known good"
@@ -53,6 +74,7 @@ def _fallback_to_cache(symbol: str, error: str) -> dict:
         cached["_id"] = str(cached["_id"])
         cached["stale"] = True
         cached["fetch_error"] = error
+        cached["data_quality"] = "stale"
         return cached
     # no cache exists at all — first-ever fetch failed
     return {
@@ -61,6 +83,7 @@ def _fallback_to_cache(symbol: str, error: str) -> dict:
         "error": "No data available and no cached fallback exists",
         "fetch_error": error,
         "stale": True,
+        "data_quality": "unavailable",
     }
 
 

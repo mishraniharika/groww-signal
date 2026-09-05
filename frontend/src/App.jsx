@@ -63,8 +63,34 @@ function Logo() {
 
 function NavIcon({ name }) {
   const Icon = NAV_ICON_MAP[name] || Home;
-
   return <Icon size={16} strokeWidth={2} />;
+}
+
+/* Data quality badge */
+function DataQualityBadge({ quality }) {
+  if (!quality || quality === "fresh") return null;
+
+  const styles = {
+    stale: {
+      label: "Stale data",
+      className: "badge-stale",
+    },
+    unavailable: {
+      label: "Unavailable",
+      className: "badge-unavailable",
+    },
+  };
+
+  const cfg = styles[quality] || {
+    label: quality,
+    className: "badge-stale",
+  };
+
+  return (
+    <span className={`data-quality-badge ${cfg.className}`}>
+      {cfg.label}
+    </span>
+  );
 }
 
 function Sparkline({ symbol, up }) {
@@ -166,7 +192,13 @@ function WatchlistsView({
                   </td>
 
                   <td className="mono-num">
-                    ₹{data?.quote?.price ?? "—"}
+                    <span>
+                      ₹{data?.quote?.price ?? "—"}
+                    </span>
+
+                    <DataQualityBadge
+                      quality={data?.quote?.data_quality}
+                    />
                   </td>
 
                   <td
@@ -339,7 +371,9 @@ export default function App() {
   );
 
   const dataIssues = withData.filter(
-    (i) => i.data.quote?.stale
+    (i) =>
+      i.data.quote?.data_quality === "stale" ||
+      i.data.quote?.data_quality === "unavailable"
   );
 
   const filtered = meaningful.filter((i) => {
@@ -704,6 +738,10 @@ export default function App() {
                           ₹{data.quote?.price ?? "—"}
                         </span>
 
+                        <DataQualityBadge
+                          quality={data.quote?.data_quality}
+                        />
+
                         {change != null && (
                           <span
                             className="pct mono-num"
@@ -746,7 +784,7 @@ export default function App() {
                         }
                         title="Remove from watchlist"
                       >
-                        ✕
+                        ×
                       </button>
 
                       <button
