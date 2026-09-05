@@ -36,3 +36,4 @@ urllib3==2.7.0
 uvicorn==0.52.4
 websockets==17.1
 yfinance==1.7.0
+pytest==9.1.1
