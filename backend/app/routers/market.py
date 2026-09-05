@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+import yfinance as yf
+from datetime import datetime, timezone
 
 from app.services.market_data import (
     fetch_quote,
@@ -103,4 +105,104 @@ def toggle_simulate_failure(payload: SimulateFailureRequest):
 def read_simulate_failure():
     return {
         "simulate_failure": get_simulate_failure(),
+    }
+
+
+# ---------------------------------------------------------
+# ASSET DETAIL
+# ---------------------------------------------------------
+
+@router.get("/asset-detail/{symbol}")
+def get_asset_detail(symbol: str):
+    """
+    Combines current quote, unusualness-vs-own-history, and recent news
+    into one payload for the Asset Detail page.
+    """
+    quote = fetch_quote(symbol)
+
+    # --- Unusualness: compare today's move to the asset's own recent volatility ---
+    unusualness = None
+
+    try:
+        ticker = yf.Ticker(symbol)
+        hist = ticker.history(period="1mo")
+
+        if not hist.empty and len(hist) > 5:
+            daily_pct_moves = hist["Close"].pct_change().dropna() * 100
+
+            # Convert NumPy numeric values into normal Python floats
+            # so FastAPI can serialize them safely as JSON.
+            avg_move = float(
+                round(daily_pct_moves.abs().mean(), 2)
+            )
+
+            std_move = float(
+                round(daily_pct_moves.std(), 2)
+            )
+
+            today_move = quote.get("pct_change")
+
+            if today_move is not None and avg_move > 0:
+                multiple = round(
+                    abs(today_move) / avg_move,
+                    1
+                )
+
+                unusualness = {
+                    "avg_daily_move_pct": avg_move,
+                    "std_dev_pct": std_move,
+                    "today_move_pct": today_move,
+                    "multiple_of_normal": multiple,
+
+                    # Convert NumPy/Python comparison result
+                    # explicitly to a normal Python bool.
+                    "is_unusual": bool(multiple >= 2.0),
+                }
+
+    except Exception as e:
+        unusualness = {
+            "error": f"Could not compute unusualness: {str(e)}"
+        }
+
+    # --- Recent news events, for the timeline ---
+    events = []
+
+    try:
+        ticker = yf.Ticker(symbol)
+        news_items = ticker.news[:5] if ticker.news else []
+
+        for item in news_items:
+            content = item.get("content", item)
+
+            events.append({
+                "title": content.get("title", "Untitled"),
+                "publisher": content.get("provider", {}).get(
+                    "displayName",
+                    "Unknown"
+                ),
+                "link": (
+                    content.get("canonicalUrl", {}).get("url", "")
+                    if isinstance(
+                        content.get("canonicalUrl"),
+                        dict
+                    )
+                    else content.get("link", "")
+                ),
+                "published_at": content.get(
+                    "pubDate",
+                    None
+                ),
+            })
+
+    except Exception:
+        # News is optional. If Yahoo Finance news fails,
+        # the Asset Detail endpoint should still work.
+        events = []
+
+    return {
+        "symbol": symbol.upper(),
+        "quote": quote,
+        "unusualness": unusualness,
+        "events": events,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
     }

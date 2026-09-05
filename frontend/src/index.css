@@ -6,19 +6,26 @@
   --border: #E4E9EF;
   --text: #16213A;
   --text-muted: #6B7686;
+
   --green: #00D09C;
   --green-dark: #00B386;
   --green-tint: #E6FBF5;
+
   --red: #EB5757;
   --red-tint: #FDEDED;
+
   --amber: #F5A623;
   --amber-tint: #FEF5E7;
+
   --purple: #7B68EE;
   --purple-tint: #EFEDFD;
+
   --blue: #4F6EF7;
   --blue-tint: #EEF1FF;
-  --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
-  --shadow-md: 0 6px 16px rgba(16,24,40,0.07);
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 6px 16px rgba(16, 24, 40, 0.07);
+
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -31,29 +38,43 @@
 html,
 body,
 #root {
+  width: 100%;
   height: 100%;
+  margin: 0;
+}
+
+html {
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
   background: var(--surface);
   color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#root {
+  overflow: hidden;
 }
 
 h1,
 h2,
 h3,
 .brand {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   margin: 0;
   color: var(--text);
 }
 
-button {
+button,
+input {
   font-family: inherit;
+}
+
+button {
   cursor: pointer;
 }
 
@@ -62,23 +83,29 @@ button {
   font-feature-settings: "tnum";
 }
 
-/* ---------- shell ---------- */
+/* =========================================================
+   APP SHELL
+========================================================= */
 
 .app-shell {
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
   display: flex;
-  min-height: 100vh;
+  overflow: hidden;
+  background: var(--surface);
 }
 
 .sidebar {
   width: 216px;
   height: 100vh;
-  box-sizing: border-box;
-  flex-shrink: 0;
+  flex: 0 0 216px;
   background: #fff;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 20px 14px;
+  overflow: hidden;
 }
 
 .sb-brand {
@@ -86,6 +113,7 @@ button {
   align-items: center;
   gap: 10px;
   padding: 6px 8px 22px;
+  flex-shrink: 0;
 }
 
 .sb-brand-name {
@@ -98,6 +126,7 @@ button {
   flex-direction: column;
   gap: 2px;
   flex: 1;
+  min-height: 0;
 }
 
 .nav-item {
@@ -113,6 +142,7 @@ button {
   border: none;
   text-align: left;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .nav-item svg {
@@ -135,6 +165,7 @@ button {
   border-top: 1px solid var(--border);
   padding-top: 14px;
   margin-top: 10px;
+  flex-shrink: 0;
 }
 
 .market-status {
@@ -186,31 +217,37 @@ button {
   color: var(--text-muted);
 }
 
-/* ---------- main column ---------- */
+/* =========================================================
+   MAIN COLUMN + TOPBAR
+========================================================= */
 
 .main-col {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .topbar {
   height: 64px;
+  min-height: 64px;
+  flex: 0 0 64px;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
   background: #fff;
-  position: sticky;
-  top: 0;
   z-index: 10;
 }
 
 .search-box {
-  flex: 1;
-  max-width: 420px;
+  flex: 1 1 auto;
+  max-width: 500px;
+  min-width: 220px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -223,12 +260,13 @@ button {
 }
 
 .search-box input {
+  width: 100%;
+  min-width: 0;
   background: none;
   border: none;
   outline: none;
   color: var(--text);
   font-size: 13px;
-  flex: 1;
 }
 
 .topbar-right {
@@ -236,6 +274,7 @@ button {
   align-items: center;
   gap: 10px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .index-pill {
@@ -245,6 +284,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 7px 12px;
+  white-space: nowrap;
 }
 
 .index-pill b {
@@ -267,6 +307,7 @@ button {
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .icon-btn:hover {
@@ -274,22 +315,51 @@ button {
   background: var(--surface);
 }
 
+/* =========================================================
+   SCROLLABLE CONTENT AREA
+   IMPORTANT: scrolling belongs here, not on body.
+========================================================= */
+
 .content {
-  flex: 1;
-  padding: 28px 32px 60px;
-  max-width: 1180px;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
   width: 100%;
-  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px 36px 64px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #D8DEE7;
+  border-radius: 10px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #BFC7D3;
 }
 
 .page-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 4px;
 }
 
-/* ---------- hero ---------- */
+/* =========================================================
+   HERO
+========================================================= */
 
 .hero {
   position: relative;
@@ -310,8 +380,8 @@ button {
   border-radius: 50%;
   background: radial-gradient(
     circle at 30% 30%,
-    rgba(0,208,156,0.18),
-    rgba(79,110,247,0.08) 60%,
+    rgba(0, 208, 156, 0.18),
+    rgba(79, 110, 247, 0.08) 60%,
     transparent 70%
   );
   pointer-events: none;
@@ -329,13 +399,14 @@ button {
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-top: 22px;
   position: relative;
 }
 
 .stat-tile {
+  min-width: 0;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -345,13 +416,13 @@ button {
 }
 
 .stat-tile.disabled {
-  opacity: .55;
+  opacity: 0.55;
 }
 
 .stat-tile .num {
   font-size: 26px;
   font-weight: 700;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .stat-tile .label {
@@ -367,7 +438,9 @@ button {
   font-weight: 600;
 }
 
-/* ---------- filters ---------- */
+/* =========================================================
+   FILTERS
+========================================================= */
 
 .section-title {
   font-size: 17px;
@@ -407,22 +480,23 @@ button {
   color: var(--text);
 }
 
-/* ---------- change rows ---------- */
+/* =========================================================
+   CHANGE ROWS
+========================================================= */
 
 .change-row {
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
+  min-width: 0;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 14px 18px;
   margin-bottom: 10px;
-  transition: .15s;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
   box-shadow: var(--shadow-sm);
-
-  /* FIX: allow content to wrap instead of overflowing */
-  flex-wrap: wrap;
 }
 
 .change-row:hover {
@@ -444,16 +518,80 @@ button {
 }
 
 .change-name {
-  flex: 0 0 140px;
+  flex: 0 1 150px;
+  min-width: 120px;
+  overflow: hidden;
 }
 
 .change-symbol {
   font-weight: 600;
   font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.clickable-stock {
+  cursor: pointer;
+}
+
+.clickable-stock:hover {
+  color: var(--green-dark);
+}
+
+.change-logo.clickable-stock:hover {
+  background: var(--green-tint);
+  color: var(--green-dark);
+}
+
+/* =========================================================
+   SPARKLINE
+========================================================= */
+
+.change-row > svg {
+  flex: 0 0 70px;
+  width: 70px;
+  height: 40px;
+}
+
+/* =========================================================
+   STOCK UPDATE BUTTON
+========================================================= */
+
+.stock-update-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  background: var(--green-tint);
+  border: 1px solid rgba(0, 179, 134, 0.35);
+  color: var(--green-dark);
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 10.5px;
+  line-height: 1.2;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.stock-update-btn:hover {
+  background: #D8F8EE;
+  border-color: var(--green);
+  transform: translateY(-1px);
+}
+
+.stock-update-btn:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   PRICE / IMPACT / WHY
+========================================================= */
+
 .change-price {
-  flex: 0 0 100px;
+  flex: 0 0 110px;
+  min-width: 100px;
   text-align: right;
 }
 
@@ -493,14 +631,13 @@ button {
   color: #92610C;
 }
 
-/* ---------- FIXED WHY COLUMN ---------- */
-
 .change-why {
   flex: 1 1 260px;
-  min-width: 0;
-  max-width: 100%;
+  min-width: 180px;
+  max-width: none;
   font-size: 12.5px;
   color: var(--text-muted);
+  overflow: hidden;
 }
 
 .change-why .why-label {
@@ -528,7 +665,9 @@ button {
   border: none;
 }
 
-/* ---------- view all ---------- */
+/* =========================================================
+   VIEW ALL
+========================================================= */
 
 .view-all-btn {
   display: block;
@@ -547,14 +686,18 @@ button {
   color: var(--green-dark);
 }
 
-/* ---------- quick add ---------- */
+/* =========================================================
+   QUICK ADD
+========================================================= */
 
 .quick-add {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .quick-add input {
+  width: 180px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -578,7 +721,9 @@ button {
   font-size: 13px;
 }
 
-/* ---------- states ---------- */
+/* =========================================================
+   STATES
+========================================================= */
 
 .empty-state {
   text-align: center;
@@ -603,11 +748,13 @@ button {
   background: var(--red-tint);
   border-radius: var(--radius-md);
   padding: 14px 18px;
-  margin: 16px 32px 0;
+  margin: 16px 36px 0;
   font-size: 13.5px;
 }
 
-/* ---------- watchlists table ---------- */
+/* =========================================================
+   WATCHLIST TABLE
+========================================================= */
 
 .wl-table {
   width: 100%;
@@ -619,7 +766,7 @@ button {
   text-align: left;
   font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
   font-weight: 600;
   padding: 0 16px 6px;
@@ -639,6 +786,7 @@ button {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   font-size: 13.5px;
+  vertical-align: middle;
 }
 
 .wl-table td:first-child {
@@ -656,7 +804,42 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: fit-content;
+  max-width: 100%;
   font-weight: 600;
+  border-radius: 8px;
+  padding: 3px 5px;
+  margin: -3px -5px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.wl-symbol-cell:hover {
+  color: var(--green-dark);
+  background: var(--green-tint);
+}
+
+.wl-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.wl-view-btn {
+  background: var(--green-tint);
+  border: 1px solid rgba(0, 179, 134, 0.35);
+  color: var(--green-dark);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.wl-view-btn:hover {
+  background: #D8F8EE;
+  border-color: var(--green);
 }
 
 .wl-remove-btn {
@@ -666,6 +849,7 @@ button {
   padding: 6px 10px;
   color: var(--text-muted);
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .wl-remove-btn:hover {
@@ -680,7 +864,7 @@ button {
   padding: 3px 9px;
   border-radius: 10px;
   text-transform: uppercase;
-  letter-spacing: .03em;
+  letter-spacing: 0.03em;
 }
 
 .wl-level-pill.high {
@@ -698,7 +882,9 @@ button {
   color: var(--green-dark);
 }
 
-/* ---------- hover-remove on Home change rows ---------- */
+/* =========================================================
+   REMOVE ON HOME
+========================================================= */
 
 .change-remove {
   opacity: 0;
@@ -708,7 +894,7 @@ button {
   font-size: 14px;
   padding: 4px 6px;
   border-radius: 6px;
-  transition: .15s;
+  transition: 0.15s;
   flex-shrink: 0;
 }
 
@@ -721,7 +907,10 @@ button {
   color: var(--red);
 }
 
-/* Data quality badges */
+/* =========================================================
+   DATA QUALITY BADGES
+========================================================= */
+
 .data-quality-badge {
   display: inline-block;
   font-size: 11px;
@@ -729,6 +918,7 @@ button {
   padding: 2px 8px;
   border-radius: 12px;
   margin-left: 6px;
+  white-space: nowrap;
 }
 
 .badge-stale {
@@ -741,16 +931,401 @@ button {
   color: #721C24;
 }
 
-/* Prevent the browser itself from creating an extra page scrollbar */
-html,
-body,
-#root {
-  margin: 0;
+/* =========================================================
+   ASSET DETAIL PAGE
+========================================================= */
+
+.asset-detail {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 6px 0 70px;
 }
 
-body {
-  min-height: 100vh;
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 0;
+  margin: 0 0 22px;
+}
+
+.back-link:hover {
+  color: var(--green-dark);
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.detail-header h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.detail-exchange {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-price-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.detail-price {
+  font-family: "Poppins", sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.detail-price-row .positive,
+.detail-price-row .negative {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.positive {
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.negative {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.detail-loading {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* =========================================================
+   WHY THIS MATTERS
+========================================================= */
+
+.evidence-box {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin: 0 0 42px;
+  box-shadow: var(--shadow-sm);
+}
+
+.evidence-box h3 {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.evidence-box p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.evidence-box strong {
+  color: var(--text);
+}
+
+.evidence-highlight {
+  border-color: rgba(245, 166, 35, 0.55);
+  background: var(--amber-tint);
+}
+
+/* =========================================================
+   RECENT TIMELINE
+========================================================= */
+
+.asset-detail > h3 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+.event-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 17px 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.timeline-item:hover {
+  border-color: #D6DDE6;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.timeline-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--green-tint);
+}
+
+.timeline-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.timeline-meta {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.event-timeline .muted {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+  .content {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .change-row {
+    gap: 12px;
+  }
+
+  .change-name {
+    flex-basis: 135px;
+  }
+
+  .change-price {
+    flex-basis: 100px;
+  }
+
+  .change-impact {
+    flex-basis: 90px;
+  }
+
+  .change-why {
+    flex-basis: 220px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .change-row {
+    flex-wrap: wrap;
+  }
+
+  .change-why {
+    flex: 1 1 100%;
+    order: 10;
+    padding-left: 0;
+  }
+
+  .change-remove,
+  .change-chevron {
+    margin-left: auto;
+  }
+
+  .asset-detail {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    width: 180px;
+    flex-basis: 180px;
+  }
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .content {
+    padding: 20px 18px 50px;
+  }
+
+  .topbar-right .index-pill {
+    display: none;
+  }
+
+  .search-box {
+    min-width: 0;
+  }
+
+  .page-header-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .quick-add {
+    width: 100%;
+  }
+
+  .quick-add input {
+    flex: 1;
+    width: auto;
+  }
+
+  .change-row {
+    gap: 10px;
+  }
+
+  .change-name {
+    flex: 1 1 120px;
+    min-width: 100px;
+  }
+
+  .change-price {
+    flex-basis: 90px;
+  }
+
+  .change-impact {
+    flex-basis: 90px;
+  }
+
+  .asset-detail > h1 {
+    font-size: 28px;
+  }
+
+  .detail-price {
+    font-size: 27px;
+  }
+
+  .evidence-box {
+    padding: 20px;
+  }
+
+  .timeline-item {
+    padding: 15px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 72px;
+    flex-basis: 72px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .sb-brand {
+    justify-content: center;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .sb-brand-name,
+  .nav-item:not(:has(svg)) {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .market-status,
+  .user-row > div:last-child {
+    display: none;
+  }
+
+  .user-row {
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .content {
+    padding: 18px 14px 40px;
+  }
+
+  .hero {
+    padding: 22px 18px;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-detail > h1 {
+    font-size: 25px;
+  }
+
+  .detail-price {
+    font-size: 25px;
+  }
+
+  .detail-price-row {
+    margin-bottom: 24px;
+  }
+
+  .evidence-box {
+    padding: 18px;
+  }
+
+  .wl-table {
+    min-width: 620px;
+  }
+
+  .wl-table {
+    display: block;
+    overflow-x: auto;
+  }
 }
