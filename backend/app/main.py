@@ -8,13 +8,17 @@ app = FastAPI(title="Groww Signal API")
 
 # Allowed frontend origins
 origins = [
-    "http://localhost:5173",                      # Local Vite development
-    "https://growwsignal.vercel.app",      # Production deployment
+    "http://localhost:5173",                # Local Vite development
+    "https://growwsignal.vercel.app",       # Production deployment (canonical, no hyphen)
+    "https://groww-signal-kappa.vercel.app", # Vercel-generated alias, redirects to the above
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://growwsignal.vercel.app"],
+    allow_origins=origins,
+    # Covers both the hyphenated alias and any Vercel preview URLs
+    allow_origin_regex=r"https://groww-?signal.*\.vercel\.app",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
