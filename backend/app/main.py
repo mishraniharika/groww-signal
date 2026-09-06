@@ -9,15 +9,12 @@ app = FastAPI(title="Groww Signal API")
 # Allowed frontend origins
 origins = [
     "http://localhost:5173",                      # Local Vite development
-    "https://groww-signal-kappa.vercel.app",      # Production deployment
+    "https://growwsignal.vercel.app",      # Production deployment
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    # Allow all Vercel preview deployments
-    allow_origin_regex=r"https://groww-signal.*\.vercel\.app",
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173", "https://growwsignal.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
